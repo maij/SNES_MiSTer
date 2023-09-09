@@ -8,6 +8,7 @@ entity SPPU is
 	port(
 		RST_N			: in std_logic;
 		CLK			: in std_logic;
+		CE			: in std_logic;
 		
 		ENABLE		: in std_logic;
 		
@@ -285,7 +286,7 @@ begin
 		DOT_CLK <= '0';
 		DOT_CLKR_CE <= '0';
 		DOT_CLKF_CE <= '0';
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CE = '1' then
 		if ENABLE = '0' then
 			DOT_CYCLES := "100";
 		elsif V_CNT = 240 and BGINTERLACE = '0' and FIELD = '1' and PAL = '0' then
@@ -328,7 +329,7 @@ port map(
 	wren_b	 => not RST_N
 );
 
-CGRAM_ADDR_CLR <= CGRAM_ADDR_CLR + 1 when rising_edge(CLK);
+CGRAM_ADDR_CLR <= CGRAM_ADDR_CLR + 1 when rising_edge(CLK) and CE = '1';
 
 CGRAM_ADDR <= CGRAM_FETCH_ADDR when BG_MATH = '1' and FORCE_BLANK = '0' else 
 				  CGADD(8 downto 1);
@@ -413,7 +414,7 @@ begin
 		OAM_PRIO_REQ <= '0';
 		
 		CGRAM_Lsb <= (others => '0');
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CE = '1' then
 		if ENABLE = '1' then
 			if OAM_ADDR_REQ = '1' and DOT_CLKR_CE = '1' then
 				OAM_ADDR <= OAMADD & "0";
@@ -701,7 +702,7 @@ begin
 	if RST_N = '0' then
 		MDR1 <= (others => '1');
 		MDR2 <= (others => '1');
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CE = '1' then
 		if PARD_N = '0' and SYSCLK_CE = '1' then
 			if PA = x"34" or PA = x"35" or PA = x"36" or PA = x"38" or PA = x"39" or PA = x"3A" or PA = x"3E" then
 				MDR1 <= D_OUT;
@@ -717,7 +718,7 @@ process( RST_N, CLK)
 begin 
 	if RST_N = '0' then
 		D_OUT <= (others => '0');
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CE = '1' then
 		case PA is
 			when x"04" | x"05" | x"06" | x"08" | x"09" | x"0A" | 
 				  x"14" | x"15" | x"16" | x"18" | x"19" | x"1A" | 
@@ -839,7 +840,7 @@ begin
 		FIELD <= '0';
 		IN_HBL <= '0';
 		IN_VBL <= '0';
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CE = '1' then
 		if ENABLE = '1' and DOT_CLKR_CE = '1' then
 			if PAL = '0' then
 				VSYNC_LINE := LINE_VSYNC_NTSC;
@@ -1210,7 +1211,7 @@ begin
 		M7_TILE_ROW <= (others => '0');
 		M7_TILE_COL <= (others => '0');
 		M7_TILE_OUTSIDE <= '0';
-	elsif rising_edge(CLK) then 
+	elsif rising_edge(CLK) and CE = '1' then 
 		if ENABLE = '1' and DOT_CLKR_CE = '1' then
 			if M7_FETCH = '1' then
 				M7_SCREEN_X <= M7_SCREEN_X + 1;
@@ -1246,7 +1247,7 @@ begin
 		BG3_OPT_DATA1 <= (others => '0');
 		BG_MOSAIC_Y <= (others => '0');
 		BG_FORCE_BLANK <= '1';
-	elsif rising_edge(CLK) then 
+	elsif rising_edge(CLK) and CE = '1' then 
 		if ENABLE = '1' and DOT_CLKR_CE = '1' then
 			if H_CNT = LAST_DOT and V_CNT <= LAST_VIS_LINE then
 				BG_DATA <= (others => (others => '0'));
@@ -1464,7 +1465,7 @@ begin
 		SPR_TILE_PAL <= (others => '0');
 		SPR_TILE_PRIO <= (others => '0');
 		SPR_TILE_DATA_TEMP <= (others => '0');
-	elsif rising_edge(CLK) then 
+	elsif rising_edge(CLK) and CE = '1' then 
 		if ENABLE = '1' and  DOT_CLKR_CE = '1' then
 			if H_CNT = LAST_DOT and V_CNT < LAST_VIS_LINE then
 				RANGE_CNT <= (others => '1');
@@ -1620,7 +1621,7 @@ begin
 		SPR_PIX_D <= (others => '0');
 		SPR_PIX_ADDR_A <= (others => '0');
 		SPR_PIX_CNT <= (others => '0');
-	elsif rising_edge(CLK) then 
+	elsif rising_edge(CLK) and CE = '1' then 
 		SPR_PIX_WE_A <= '0';
 		if OBJ_TIME_SAVE = '1' and CLK_CNT(2) = '0' then
 			X := SPR_TILE_X + SPR_PIX_CNT;
@@ -1662,7 +1663,7 @@ begin
 	if RST_N = '0' then
 		SPR_PIX_DATA_BUF <= (others => '0');
 		SPR_PIXEL_X <= (others => '0');
-	elsif rising_edge(CLK) then 
+	elsif rising_edge(CLK) and CE = '1' then 
 		if ENABLE = '1' and DOT_CLKR_CE = '1' then
 			if H_CNT = LAST_DOT and V_CNT >= 1 and V_CNT <= LAST_VIS_LINE then
 				SPR_PIXEL_X <= (others => '0');
@@ -1694,7 +1695,7 @@ begin
 		BG3_PIX_DATA <= (others => '0');
 		BG4_PIX_DATA <= (others => '0');
 		SPR_PIX_DATA <= (others => '0');
-	elsif rising_edge(CLK) then 
+	elsif rising_edge(CLK) and CE = '1' then 
 		if ENABLE = '1' and DOT_CLKR_CE = '1' then
 			if H_CNT = LAST_DOT and V_CNT >= 1 and V_CNT <= LAST_VIS_LINE then
 				GET_PIXEL_X <= (others => '0');
@@ -2164,7 +2165,7 @@ begin
 		SUB_MATH_R <= (others => '0');
 		SUB_MATH_G <= (others => '0');
 		SUB_MATH_B <= (others => '0');
-	elsif rising_edge(CLK) then 
+	elsif rising_edge(CLK) and CE = '1' then 
 		if ENABLE = '1' then
 			if BG_GET_PIXEL = '1' and DOT_CLKR_CE = '1' then
 				WINDOW_X <= GET_PIXEL_X;
@@ -2256,7 +2257,7 @@ begin
 	if RST_N = '0' then
 		OUT_Y <= (others => '0');
 		OUT_X <= (others => '0');
-	elsif rising_edge(CLK) then 
+	elsif rising_edge(CLK) and CE = '1' then 
 		if ENABLE = '1' and DOT_CLKR_CE = '1' then
 			if H_CNT = LAST_DOT and V_CNT >= 1 and V_CNT <= LAST_VIS_LINE then
 				OUT_Y <= OUT_Y + 1;

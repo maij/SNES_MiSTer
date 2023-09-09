@@ -12,6 +12,7 @@ entity DSP_LHRomMap is
 	);
 	port(
 		MCLK			: in std_logic;
+		CE				: in std_logic;
 		RST_N			: in std_logic;
 		ENABLE		: in std_logic := '1';
 
@@ -96,6 +97,7 @@ begin
 	CEGen : entity work.CEGen
 	port map(
 		CLK     => MCLK,
+		CORE_CE	=> CE,
 		RST_N   => RST_N,
 		IN_CLK  => 2147727,
 		OUT_CLK => DSP_CLK,
@@ -240,6 +242,7 @@ begin
 	SRTC : entity work.SRTC
 	port map(
 		CLK			=> MCLK,
+		CE			=> CE,
 
 		A0				=> CA(0),
 		DI				=> DI,
@@ -270,7 +273,7 @@ begin
 	begin
 		if RST_N = '0' then
 			OPENBUS <= (others => '1');
-		elsif rising_edge(MCLK) then
+		elsif rising_edge(MCLK) and CE = '1' then
 			if SYSCLKR_CE = '1' then
 				OPENBUS <= DI;
 			end if;

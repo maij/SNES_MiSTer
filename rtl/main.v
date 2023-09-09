@@ -3,6 +3,7 @@ module main (
 
 	input             MCLK,
 	input             ACLK,
+	input 			  CE,
 
 	input       [7:0] ROM_TYPE,
 	input      [23:0] ROM_MASK,
@@ -142,6 +143,7 @@ wire  [5:0] MAP_ACTIVE;
 SNES SNES
 (
 	.mclk(MCLK),
+	.ce(CE),
 	.dspclk(ACLK),
 
 	.rst_n(RESET_N),
@@ -241,6 +243,7 @@ if (USE_MSU == 1'b1) begin
 MSU MSU
 (
 	.CLK(MCLK),
+	.CE(CE),
 	.RST_N(RESET_N),
 	.ENABLE(MSU_ENABLE),
 
@@ -299,6 +302,7 @@ if (USE_DLH == 1'b1) begin
 DSP_LHRomMap #(.USE_DSPn(USE_DSPn)) DSP_LHRomMap
 (
 	.mclk(MCLK),
+	.ce(CE),
 	.rst_n(RESET_N),
 
 	.ca(CA),
@@ -372,6 +376,7 @@ if (USE_CX4 == 1'b1) begin
 CX4Map CX4Map
 (
 	.mclk(MCLK),
+	.ce(CE),
 	.rst_n(RESET_N),
 
 	.ca(CA),
@@ -433,6 +438,7 @@ if (USE_SDD1 == 1'b1) begin
 SDD1Map SDD1Map
 (
 	.mclk(MCLK),
+	.ce(CE),
 	.rst_n(RESET_N),
 
 	.ca(CA),
@@ -494,6 +500,7 @@ if (USE_GSU == 1'b1) begin
 GSUMap GSUMap
 (
 	.mclk(MCLK),
+	.ce(CE),
 	.rst_n(RESET_N),
 
 	.ca(CA),
@@ -560,6 +567,7 @@ if (USE_SA1 == 1'b1) begin
 SA1Map SA1Map
 (
 	.mclk(MCLK),
+	.ce(CE),
 	.rst_n(RESET_N),
 
 	.ca(CA),
@@ -622,6 +630,7 @@ if (USE_SPC7110 == 1'b1) begin
 SPC7110Map SPC7110Map
 (
 	.mclk(MCLK),
+	.ce(CE),
 	.rst_n(RESET_N),
 
 	.ca(CA),
@@ -687,6 +696,7 @@ BSXMap BSXMap
 (
 	.mclk(MCLK),
 	.rst_n(RESET_N),
+	.ce(CE),
 
 	.ca(CA),
 	.di(DO),

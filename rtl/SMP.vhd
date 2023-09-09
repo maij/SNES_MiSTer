@@ -7,6 +7,7 @@ library work;
 entity SMP is
 	port( 
 		CLK 				: in std_logic;
+		CORE_CE				: in std_logic;
 		RST_N 			: in std_logic; 
 		CE 				: in std_logic;
 		ENABLE 			: in std_logic;
@@ -145,7 +146,7 @@ begin
 		if RST_N = '0' then
 			CPUI <= (others => (others => '0'));
 			PAWR_N_OLD <= '1';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CORE_CE = '1' then
 			PAWR_N_OLD <= PAWR_N;
 			if PAWR_N = '0' and PAWR_N_OLD = '1' and CS = '1' and CS_N = '0' then
 				CPUI(to_integer(unsigned(PA))) <= CPU_DI;
@@ -177,6 +178,7 @@ begin
 	SPC700: entity work.SPC700 
 	port map (
 		CLK      	=> CLK,
+		CE			=> CORE_CE,
 		RST_N    	=> RST_N,
 		RDY      	=> SPC700_CE,
 		IRQ_N 		=> '1',
@@ -220,7 +222,7 @@ begin
 			T2_CNT <= (others=>'0');
 			
 			TIMER_CE <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CORE_CE = '1' then
 			TIMER_CE <= '0';
 			if REG_SET = '1' then
 --				TIMERS_DISABLE <= SMP_REG_DAT(0);
@@ -364,7 +366,7 @@ begin
 
 	process( CLK )
 	begin
-		if rising_edge(CLK) then
+		if rising_edge(CLK) and CORE_CE = '1' then
 			if IO_WR = '1' then
 				if IO_ADDR(16 downto 4) = "0"&x"02F" then
 					case IO_ADDR(3 downto 1) is

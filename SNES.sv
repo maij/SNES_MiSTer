@@ -291,7 +291,7 @@ wire reset = RESET | buttons[1] | status[0] | cart_download | spc_download | bk_
 // 0         1         2         3          4         5         6
 // 01234567890123456789012345678901 23456789012345678901234567890123
 // 0123456789ABCDEFGHIJKLMNOPQRSTUV 0123456789ABCDEFGHIJKLMNOPQRSTUV
-// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  XXXXXXXXXXXXXXX
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  XXXXXXXXXXXXXXXX
 
 `include "build_id.v"
 parameter CONF_STR = {
@@ -348,6 +348,7 @@ parameter CONF_STR = {
 	"P3oCD,Initial ARAM,9966(SNES2),00FF(SNES1),55(SD2SNES),FF;",
 
 	"-;",
+	"O[47],Pause when OSD is open,Off,On;",
 	"R0,Reset;",
 	"J1,A(SS Fire),B(SS Cursor),X(SS TurboSw),Y(SS Pause),LT(SS Cursor),RT(SS Fire),Select,Start;",
 	"V,v",`BUILD_DATE
@@ -543,6 +544,67 @@ always @(posedge clk_sys) begin
 	end
 end
 
+//////////////////////////////// CE ////////////////////////////////////
+
+
+wire ce;
+// wire cart_act = cart_wr | cart_rd;
+wire cart_act = !ROM_WE_N | (RESET_N ? ~ROM_OE_N : RFSH);
+wire fastforward = joy0[8] && !ioctl_download && !OSD_STATUS;
+wire ff_on;
+wire sdram_refresh_force;
+// wire sleep_savestate;
+
+reg paused;
+always_ff @(posedge clk_sys) begin
+//    paused <= sleep_savestate | (status[26] && OSD_STATUS && !ioctl_download && !reset && ~status[27]); // no pause when downloading rom, resetting or rewind capture is on
+   paused <= (status[47] && OSD_STATUS && !ioctl_download && !reset); // no pause when downloading rom, resetting or rewind capture is on
+end
+
+core_control core_control
+(
+	.clk_sys     (clk_sys),
+	.pause       (paused),
+	.speedup     (1'b0),
+	.cart_act    (1'b0),
+	.DMA_on      (1'b0),
+	.ce          (ce),
+	.refresh     (sdram_refresh_force),
+	.ff_on       (ff_on)
+);
+
+///////////////////////////// Fast Forward Latch /////////////////////////////////
+
+reg fast_forward;
+reg ff_latch;
+
+always @(posedge clk_sys) begin : ffwd
+	reg last_ffw;
+	reg ff_was_held;
+	longint ff_count;
+
+	last_ffw <= fastforward;
+
+	if (fastforward)
+		ff_count <= ff_count + 1;
+
+	if (~last_ffw & fastforward) begin
+		ff_latch <= 0;
+		ff_count <= 0;
+	end
+
+	if ((last_ffw & ~fastforward)) begin // 32mhz clock, 0.2 seconds
+		ff_was_held <= 0;
+
+		if (ff_count < 3200000 && ~ff_was_held) begin
+			ff_was_held <= 1;
+			ff_latch <= 1;
+		end
+	end
+
+	fast_forward <= (fastforward | ff_latch);
+end
+
 ////////////////////////////  SYSTEM  ///////////////////////////////////
 
 wire GSU_ACTIVE;
@@ -557,6 +619,7 @@ main main
 
 	.MCLK(clk_sys), // 21.47727 / 21.28137
 	.ACLK(clk_sys),
+	.CE(ce),
 
 	.GSU_ACTIVE(GSU_ACTIVE),
 	.GSU_TURBO(GSU_TURBO),

@@ -8,6 +8,7 @@ entity SDD1 is
 	port(
 		RST_N			: in  std_logic;
 		CLK			: in  std_logic;
+		CE			: in std_logic;
 		ENABLE		: in  std_logic;
 
 		CA   			: in  std_logic_vector(23 downto 0);
@@ -125,7 +126,7 @@ begin
 			ROMBANKF <= x"3";
 			OUT_DATA_SEL <= '0';
 			DEC_START <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' then
 				DEC_START <= '0';
 				
@@ -193,7 +194,7 @@ begin
 		if RST_N = '0' then
 			DS <= DS_IDLE;
 			DEC_RUN <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' then
 				case DS is
 					when DS_IDLE =>
@@ -289,7 +290,7 @@ begin
 		if RST_N = '0' then
 			DEC_OUT_DATA0 <= (others => '0');
 			DEC_OUT_DATA1 <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if DEC_PLANE_DONE = '1' and DEC_RUN = '1' then
 				DEC_OUT_DATA0 <= DEC_DO(7 downto 0);
 				DEC_OUT_DATA1 <= DEC_DO(15 downto 8);
@@ -356,7 +357,7 @@ begin
 	ROM_A <= MAP_ROM_A;
 	ROM_DATA <= ROM_DO(7 downto 0) when MAP_ROM_A(0) = '0' else ROM_DO(15 downto 8);
 
-	RD_PULSE <= SYSCLKF_CE or SYSCLKR_CE when rising_edge(CLK);
+	RD_PULSE <= SYSCLKF_CE or SYSCLKR_CE when rising_edge(CLK) and CE = '1';
 	ROM_RD_N <= not RD_PULSE;
 	
 end rtl;

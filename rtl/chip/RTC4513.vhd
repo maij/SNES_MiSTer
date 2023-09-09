@@ -7,6 +7,7 @@ library work;
 entity RTC4513 is
 	port(
 		CLK			: in std_logic;
+		CORE_CE			: in std_logic;
 		ENABLE		: in std_logic;
 		
 		DO				: out std_logic_vector(3 downto 0);
@@ -59,7 +60,7 @@ begin
 
 	process( CLK)
 	begin
-		if rising_edge(CLK) then
+		if rising_edge(CLK) and CORE_CE = '1' then
 			SEC_TICK <= '0';
 			
 			SEC_DIV <= SEC_DIV + 1;
@@ -74,7 +75,7 @@ begin
 	variable DAY_OF_MONTH_L : std_logic_vector(3 downto 0);
 	variable DAY_OF_MONTH_H : std_logic_vector(1 downto 0);
 	begin
-		if rising_edge(CLK) then
+		if rising_edge(CLK) and CORE_CE = '1' then
 			DAY_OF_MONTH_H := DAYS_TBL(to_integer(unsigned(REGS(9)(0)&REGS(8))))(5 downto 4);
 			DAY_OF_MONTH_L := DAYS_TBL(to_integer(unsigned(REGS(9)(0)&REGS(8))))(3 downto 0);
 

@@ -8,6 +8,7 @@ entity SPC7110 is
 	port(
 		RST_N				: in std_logic;
 		CLK				: in std_logic;
+		CE				: in std_logic;
 		ENABLE			: in std_logic;
 		
 		CA   				: in std_logic_vector(23 downto 0);
@@ -166,7 +167,7 @@ begin
 			ALU_CNT <= (others => '0');
 			RTC_CK <= '0';
 			DEC_RUN_OLD <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' then
 				if LOAD_RUN = '1' and WS = WS_LOAD_ADDR1 then
 					LOAD_RUN <= '0';
@@ -370,7 +371,7 @@ begin
 	begin
 		if RST_N = '0' then
 			DO <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if CA(22) = '0' and CA(15 downto 8) = x"48" and CA(7) = '0' then 
 				case CA(6 downto 0) is
 					when "0000000" =>						--4800
@@ -474,7 +475,7 @@ begin
 			
 			FIFO_D <= (others => '0');
 			FIFO_WR <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' then
 				FIFO_WR <= '0';
 				case WS is
@@ -560,7 +561,7 @@ begin
 			DEC_INIT <= '0';
 			DEC_BUF <= (others => (others => '0'));
 			DEC_BUF_WR_ADDR <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' then
 				DEC_INIT <= '0';
 				case DS is

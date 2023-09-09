@@ -8,6 +8,7 @@ entity SA1 is
 	port(
 		RST_N			: in std_logic;
 		CLK			: in std_logic;
+		CORE_CE			: in std_logic;
 		ENABLE		: in std_logic;
 		
 		SNES_A   	: in std_logic_vector(23 downto 0);
@@ -249,7 +250,7 @@ process( RST_N, CLK )
 begin
 	if RST_N = '0' then
 		CLK_CE <= '0';
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CORE_CE = '1' then
 		if ENABLE = '1' then
 			CLK_CE <= not CLK_CE;
 		end if;
@@ -261,7 +262,7 @@ begin
 	if RST_N = '0' then
 		WIN_CLK_CNT <= (others => '0');
 		SNES_SYSCLK <= '0';
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CORE_CE = '1' then
 		if ENABLE = '1' then
 			WIN_CLK_CNT <= WIN_CLK_CNT + 1;
 			if SYSCLKF_CE = '1' then
@@ -336,7 +337,7 @@ process( CLK, RST_N)
 begin
 	if RST_N = '0' then
 		SA1_BWRAM_VALID <= '0';
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CORE_CE = '1' then
 		if EN = '1' then
 			if SNES_BWRAM_SEL = '1' or SA1_BWRAM_SEL = '0' or SA1_BWRAM_WAIT = '1' then
 				SA1_BWRAM_VALID <= '0';
@@ -373,7 +374,7 @@ process( CLK, RST_N)
 begin
 	if RST_N = '0' then
 		MDR <= (others => '1');
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CORE_CE = '1' then
 		if EN = '1' then
 			if SA1_EN = '1' and (P65_VPA = '1' or P65_VDA = '1') then
 				if P65_R_WN = '0' then
@@ -631,7 +632,7 @@ process( CLK, RST_N)
 begin
 	if RST_N = '0' then
 		NDMA_EN <= '0';
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CORE_CE = '1' then
 		if EN = '1' then
 			if DMA_RUN = '0' or 
 				(DMA_SRC_ROM_SEL = '1' and SNES_ROM_SEL = '1') or
@@ -651,7 +652,7 @@ process( CLK, RST_N)
 begin
 	if RST_N = '0' then
 		CCDMA_BWRAM_VALID <= '0';
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CORE_CE = '1' then
 		if EN = '1' then
 			if (CCDMA_SRC_BWRAM_SEL = '0' and CC1DMA_EXEC = '1') or DMA_RUN = '0' then
 				CCDMA_BWRAM_VALID <= '0';
@@ -704,7 +705,7 @@ begin
 		CC_TILE_N <= (others => '0');
 		CC1DMA_EXEC <= '0';
 		CDMA_IRQ_FLAG <= '0';
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CORE_CE = '1' then
 		NDMA_SEL := DMAEN and not CDEN and ((not DMASD(0) and not DMASD(1)) or (DMASD(0) xor DMADD));
 		CC1DMA_SEL := DMAEN and CDEN and CDSEL;
 		CC2DMA_SEL := DMAEN and CDEN and not CDSEL;
@@ -982,7 +983,7 @@ begin
 		VBP_BUF <= (others => '0');
 		VBP_RUN <= '0';
 		VBP_PRELOAD <= '0';
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CORE_CE = '1' then
 		if EN = '1' then
 			if VBP_RUN = '0' then
 				if SA1_MMIO_WRITE = '1' then
@@ -1105,7 +1106,7 @@ begin
 		MATH_REQ <= '0';
 		MATH_CLK_CNT <= (others => '0');
 
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CORE_CE = '1' then
 		if ENABLE = '1' then
 			if SNES_MMIO_WRITE = '1' then			--SNES Port Write
 				case SNES_A(7 downto 0) is
@@ -1297,7 +1298,7 @@ process( RST_N, CLK )
 begin
 	if RST_N = '0' then
 		OPENBUS <= (others => '0');
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CORE_CE = '1' then
 		if EN = '1' then
 			if SYSCLKF_CE = '1' then
 --				if SNES_RD_N = '0' then
@@ -1379,7 +1380,7 @@ begin
 		H_CNT <= (others => '0');
 		V_CNT <= (others => '0');
 		DOT_CLK <= '0';
-	elsif rising_edge(CLK) then
+	elsif rising_edge(CLK) and CORE_CE = '1' then
 		if EN = '1' then
 			DOT_CLK <= not DOT_CLK;
 			if SA1_MMIO_WRITE = '1' and P65_A(7 downto 0) = x"11" then

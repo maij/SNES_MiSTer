@@ -8,6 +8,7 @@ use work.GSU_PKG.all;
 entity GSU is
 	port(
 		CLK			: in std_logic;
+		CE			: in std_logic;
 
 		RST_N			: in std_logic;
 		ENABLE		: in std_logic;
@@ -260,7 +261,7 @@ begin
 			GSU_MEM_ACCESS <= '0';
 			
 			GO_CNT <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' then
 				if MMIO_WR = '1' then
 					if ADDR(7 downto 0) = x"30" then	--SFR LSB
@@ -404,7 +405,7 @@ begin
 	begin
 		if RST_N = '0' then
 			CLK_CE <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' then
 				CLK_CE <= not CLK_CE or SPEED or TURBO;
 			end if;
@@ -428,7 +429,7 @@ begin
 		if RST_N = '0' then
 			OPCODE <= x"01";
 			OPDATA <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if CPU_EN = '1' then
 				if OP.OP = OP_STOP then
 					OPCODE <= x"01";
@@ -468,7 +469,7 @@ begin
 			CACHE_DST_ADDR <= (others => '0');
 			CACHE_SRC_ADDR <= (others => '0');
 			CBR <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' then
 				if MMIO_WR = '1' and ADDR(7 downto 0) = x"30" then	--SFR
 					if FLAG_GO = '1' and DI(5) = '0' then
@@ -554,7 +555,7 @@ begin
 	begin
 		if RST_N = '0' then
 			STATE <= 0;
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if CPU_EN = '1' then
 				if MC.LAST_CYCLE = '0' then
 					STATE <= STATE + 1;
@@ -576,7 +577,7 @@ begin
 			FLAG_ALT2 <= '0';
 			DREG <= (others => '0');
 			SREG <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if CPU_EN = '1' then
 				if OP.OP = OP_TO then
 					DREG <= OP_N;
@@ -717,7 +718,7 @@ begin
 			FLAG_S <= '0';
 			FLAG_CY <= '0';
 			FLAG_OV <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if CPU_EN = '1' and MC.FSET = '1' then
 				FLAG_Z <= ALUZ;
 				FLAG_S <= ALUS;
@@ -742,7 +743,7 @@ begin
 			RAMBR <= (others => '0');
 			ROMBR <= (others => '0');
 			REG_LSB <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if EN = '0' then 
 				if MMIO_REG_WR = '1' then
 					if ADDR(0) = '0' then
@@ -856,7 +857,7 @@ begin
 					MULT_WAIT <= '0';
 				end if;
 			end if;
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if EN = '1' then
 				case MULTST is
 					when MULTST_IDLE =>
@@ -967,7 +968,7 @@ begin
 					ROM_CACHE_WAIT <= '1';
 				end if;
 			end if;
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if GO = '1' then
 				ROM_LOAD_START := '0';
 				ROM_FETCH_START := '0';
@@ -1075,7 +1076,7 @@ begin
 		if RST_N = '0' then
 			ROM_RD_N <= '1';
 			ROM_RD_CNT <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			ROM_RD_N <= '1';
 			if GSU_ROM_ACCESS = '0' then
 				if SYSCLKR_CE = '1' or SYSCLKF_CE = '1' then
@@ -1270,7 +1271,7 @@ begin
 					RAM_CACHE_WAIT <= '1';
 				end if;
 			end if;
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if GO = '1' then
 				RAM_SAVE_START := '0';
 				RAM_LOAD_START := '0';

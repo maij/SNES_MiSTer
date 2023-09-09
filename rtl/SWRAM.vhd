@@ -6,6 +6,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity SWRAM is
 	port(
 		CLK			: in std_logic;
+		CE			: in std_logic;
 		SYSCLK_CE	: in std_logic;
 		RST_N			: in std_logic;
 		ENABLE		: in std_logic;
@@ -41,7 +42,7 @@ begin
 	begin
 		if RST_N = '0' then
 			WMADD <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' and SYSCLK_CE = '1' then
 				if PAWR_N = '0' then
 					case PA is

@@ -10,6 +10,7 @@ entity BSXMap is
 	port(
 		MCLK			: in std_logic;
 		RST_N			: in std_logic;
+		CE				: in std_logic;
 		ENABLE		: in std_logic := '1';
 
 		CA   			: in std_logic_vector(23 downto 0);
@@ -103,6 +104,7 @@ begin
 	BS : entity work.BS
 	port map(
 		CLK			=> MCLK,
+		CE			=> CE,
 		RST_N			=> RST_N and MAP_SEL,
 		ENABLE		=> ENABLE,
 
@@ -119,6 +121,7 @@ begin
 	MCC : entity work.MCC
 	port map(
 		CLK			=> MCLK,
+		CE			=> CE,
 		RST_N			=> RST_N and MAP_SEL,
 		ENABLE		=> ENABLE,
 
@@ -147,6 +150,7 @@ begin
 	DP : entity work.DATAPAK
 	port map(
 		CLK			=> MCLK,
+		CE			=> CE,
 		RST_N			=> RST_N and MAP_SEL,
 		ENABLE		=> ENABLE,
 
@@ -175,7 +179,7 @@ begin
 			PSRAM_MEM_WR <= '0';
 			PSRAM_MEM_ADDR <= (others => '0');
 			PSRAM_MEM_DATA <= (others => '0');
-		elsif rising_edge(MCLK) then
+		elsif rising_edge(MCLK) and CE = '1' then
 			if SYSCLKF_CE = '1' then
 				if PSRAM_CE_N = '0' and CPUWR_N = '0'  then
 					PSRAM_MEM_ADDR <= PSRAM_ADDR;
@@ -194,7 +198,7 @@ begin
 			MEM_RD_PULSE <= '0';
 			MEM_WR_PULSE <= '0';
 			MEM_RW_PHASE <= '0';
-		elsif rising_edge(MCLK) then
+		elsif rising_edge(MCLK) and CE = '1' then
 			MEM_RD_PULSE <= SYSCLKF_CE or SYSCLKR_CE;
 			MEM_WR_PULSE <= SYSCLKF_CE;
 			if SYSCLKF_CE = '1' then
@@ -231,7 +235,7 @@ begin
 	begin
 		if RST_N = '0' then
 			OPENBUS <= (others => '1');
-		elsif rising_edge(MCLK) then
+		elsif rising_edge(MCLK) and CE = '1' then
 			if SYSCLKR_CE = '1' then
 				OPENBUS <= DI;
 			end if;

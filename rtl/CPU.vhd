@@ -7,6 +7,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity SCPU is
 	port(
 		CLK				: in std_logic;
+		CE				: in std_logic;
 		RST_N				: in std_logic;
 		ENABLE			: in std_logic;
 		
@@ -268,7 +269,7 @@ begin
 			INT_CLK <= '1';
 			CPU_ACTIVEr <= '1';
 			DMA_ACTIVEr <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			DMA_CLK_CNT <= DMA_CLK_CNT + 1;
 			if DMA_CLK_CNT = DMA_LAST_CLOCK  then
 				DMA_CLK_CNT <= (others => '0');
@@ -318,7 +319,7 @@ begin
 		if RST_N = '0' then
 			INT_CLKF_CE <= '0';
 			INT_CLKR_CE <= '0';
-		elsif falling_edge(CLK) then
+		elsif falling_edge(CLK) and CE = '1' then
 			INT_CLKF_CE <= '0';
 			INT_CLKR_CE <= '0';
 			if DMA_ACTIVEr = '1' or ENABLE = '0' then
@@ -565,7 +566,7 @@ begin
 			IRQ_VALID <= '0';
 			IRQ_VALID_OLD <= '0';
 			IRQ_LOCK <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if P65_R_WN = '1' and P65_A(15 downto 0) = x"4211" and IO_SEL = '1' then
 				TIMEUP_READ := '1';
 			else
@@ -641,7 +642,7 @@ begin
 			DIV_REQ <= '0';
 			MATH_CLK_CNT <= (others => '0');
 			MATH_TEMP <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' and INT_CLKF_CE = '1' then
 				if MUL_REQ = '1' then
 					if RDDIV(0) = '1' then
@@ -798,7 +799,7 @@ begin
 	begin
 		if RST_N = '0' then
 			MDR <= (others => '1');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if INT_CLKR_CE = '1' then
 				if P65_EN = '1' and (P65_VPA = '1' or P65_VDA = '1') and P65_R_WN = '0' then
 					MDR <= P65_DO;
@@ -826,7 +827,7 @@ begin
 			FIELD <= '0';
 			HBLANK_OLD <= '0';
 			VBLANK_OLD <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' then
 				DOT_CLK_CNT <= DOT_CLK_CNT + 1;
 				
@@ -862,7 +863,7 @@ begin
 			REFS <= REFS_IDLE;
 			REFRESH_CNT <= (others => '0'); 
 			HBLANK_REF_OLD <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' and INT_CLKF_CE = '1' then
 				HBLANK_REF_OLD <= HBLANK;
 				case REFS is
@@ -928,7 +929,7 @@ begin
 			
 			HDMA_INIT_EXEC <= '1';
 			HDMA_RUN_EXEC <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if P65_R_WN = '0' and IO_SEL = '1' and INT_CLKF_CE = '1' then
 				if P65_A(15 downto 8) = x"42" then
 					case P65_A(7 downto 0) is
@@ -1168,7 +1169,7 @@ begin
 			HDMA_A_RD <= '0';
 			HDMA_B_WR <= '0';
 			HDMA_B_RD <= '0';	
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if EN = '1' then
 				if DS = DS_TRANSFER and INT_CLKR_CE = '1' then
 					DMA_A_WR <= DMAP(DCH)(7);
@@ -1210,7 +1211,7 @@ begin
 			OLD_JOY_STRB <= '0';
 			OLD_JOY1_CLK <= '0';
 			OLD_JOY2_CLK <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' and INT_CLKF_CE = '1' then
 				OLD_JOY1_CLK <= '0';
 				OLD_JOY2_CLK <= '0';
@@ -1249,7 +1250,7 @@ begin
 			JOYRD_BUSY <= '0';
 			AUTO_JOY_STRB <= '0';
 			AUTO_JOY_CLK <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' and DOT_CLK_CE = '1' then
 				JOY_POLL_CLK <= JOY_POLL_CLK + 1;
 				if JOY_POLL_CLK(4 downto 0) = 31 then

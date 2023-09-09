@@ -7,6 +7,7 @@ use work.SPC700_pkg.all;
 entity SPC700 is
     port( 
         CLK 			: in std_logic;
+		CE				: in std_logic;
 		  RST_N 			: in std_logic; 
 		  RDY 			: in std_logic;
 		  IRQ_N 			: in std_logic;
@@ -69,7 +70,7 @@ begin
 			JumpTaken <= '0';
 			BitMask <= (others=>'0');
 			nBit <= 0;
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if EN = '1' then
 				if STATE = "0000" and D_IN(3 downto 0) = x"0" then
 					case D_IN(7 downto 4) is
@@ -152,7 +153,7 @@ begin
 		if RST_N = '0' then
 			STATE <= (others=>'0');
 			IR <= (others=>'0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if EN = '1' then
 				IR <= NextIR;
 				STATE <= NextState;
@@ -264,7 +265,7 @@ begin
 			A <= (others=>'0');
 			X <= (others=>'0');
 			Y <= (others=>'0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if REG_SET = '1' then
 				A <= REG_DAT(23 downto 16); 
 				X <= REG_DAT(31 downto 24);
@@ -298,7 +299,7 @@ begin
 			PSW <= (others=>'0');
 			SP <= (others=>'0');
 			T <= (others=>'0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if REG_SET = '1' then
 				PSW <= REG_DAT(47 downto 40);
 				SP <= REG_DAT(55 downto 48);
@@ -403,7 +404,7 @@ begin
 			IsResetInterrupt <= '1';
 			IsIRQInterrupt <= '0'; 
 			STPExec <= '0'; 
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if REG_SET = '1' then	--need for SPC Player
 				GotInterrupt <= '0'; 
 				IsResetInterrupt <= '0';

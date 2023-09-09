@@ -9,6 +9,7 @@ use work.DSP_PKG.all;
 entity DSP is
 	port( 
 		CLK 			: in std_logic;
+		CORE_CE			: in std_logic;
 		RST_N 		: in std_logic; 
 		ENABLE 		: in std_logic;
 		PAL			: in std_logic;
@@ -227,6 +228,7 @@ begin
 	CEGen : entity work.CEGen
 	port map(
 		CLK      => CLK,
+		CORE_CE	 => CORE_CE,
 		RST_N    => CEGEN_RST_N,
 		IN_CLK   => MCLK_FREQ,
 		OUT_CLK  => ACLK_FREQ,
@@ -241,7 +243,7 @@ begin
 		if RST_N = '0' then
 			STEP_CNT <= (others => '0');
 			SUBSTEP_CNT <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CORE_CE = '1' then
 			if ENABLE = '1' and CE = '1' then
 				SUBSTEP_CNT <= SUBSTEP_CNT + 1;
 				if SUBSTEP_CNT = 3 then
@@ -285,7 +287,7 @@ begin
 	begin
 		if RST_N = '0' then
 			RI <= (others=>'0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CORE_CE = '1' then
 			if REG_SET = '1' then
 				RI <= REGRI;
 			elsif ENABLE = '1' and CE = '1' then
@@ -454,7 +456,7 @@ begin
 			TBRRDAT <= (others => '0');
 			ECHO_BUF <= (others => (others => (others => '0')));
 			ECHO_DATA_TEMP <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CORE_CE = '1' then
 			if ENABLE = '1' and CE = '1' then
 				case RS is
 					when RS_SRCNL =>
@@ -526,7 +528,7 @@ begin
 			BRR_BUF_ADDR <= (others => (others => '0'));
 			BRR_BUF_WE <= '0';
 			BD_STATE <= BD_IDLE;
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CORE_CE = '1' then
 			BRR_BUF_WE <= '0';
 			if ENABLE = '1' and CE = '1' then
 				if BDS.S /= BDS_IDLE and BRR_DECODE_EN = '1' then
@@ -663,7 +665,7 @@ begin
 			BRR_DECODE_EN <= '0';
 			BRR_END <= (others => '0');
 			GS_STATE <= GS_IDLE;
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CORE_CE = '1' then
 			GTBL_DO <= GTBL(to_integer(GTBL_ADDR));
 			if REG_SET = '1' then 
 				--6C FLG
@@ -1044,7 +1046,7 @@ begin
 			GCNT_BY1 <= (others => '0');
 			GCNT_BY3 <= x"410";
 			GCNT_BY5 <= x"218";
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CORE_CE = '1' then
 			if ENABLE = '1' and CE = '1' then
 				if STEP = 30 and SUBSTEP = 1 then
 					if GCNT_BY3(1 downto 0) = "00" then
@@ -1072,7 +1074,7 @@ begin
 			SND_RDY <= '0';
 			AUDIO_L <= (others => '0');
 			AUDIO_R <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CORE_CE = '1' then
 			SND_RDY <= '0';
 			if ENABLE = '1' and CE = '1' then
 				if SUBSTEP = 3 then
@@ -1096,7 +1098,7 @@ begin
 	--spc mode
 	process( CLK )
 	begin
-		if rising_edge(CLK) then
+		if rising_edge(CLK) and CORE_CE = '1' then
 			IO_REG_WR <= IO_REG_WR(0)&IO_WR;
 			if IO_WR = '1' then
 				IO_REG_DAT <= IO_DAT(7 downto 0);

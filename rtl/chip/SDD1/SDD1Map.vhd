@@ -9,6 +9,7 @@ use IEEE.STD_LOGIC_TEXTIO.all;
 entity SDD1Map is
 	port(
 		MCLK			: in std_logic;
+		CE				: in std_logic;
 		RST_N			: in std_logic;
 		ENABLE		: in std_logic := '1';
 		
@@ -66,6 +67,7 @@ begin
 	SDD1 : entity work.SDD1
 	port map(
 		RST_N			=> RST_N and MAP_SEL,
+		CE			=> CE,
 		CLK			=> MCLK,
 		ENABLE		=> ENABLE,
 

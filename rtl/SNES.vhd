@@ -9,6 +9,7 @@ use IEEE.STD_LOGIC_TEXTIO.all;
 entity SNES is
 	port(
 		MCLK			: in std_logic;
+		CE				: in std_logic;
 		DSPCLK		: in std_logic;
 		
 		RST_N			: in std_logic;
@@ -199,6 +200,7 @@ begin
 	CPU : entity work.SCPU
 	port map(
 		CLK			=> MCLK,
+		CE			=> CE,
 		RST_N			=> RST_N and not SPC_MODE,
 		
 		ENABLE		=> ENABLE,
@@ -261,6 +263,7 @@ begin
 	WRAM : entity work.SWRAM
 	port map(
 		CLK			=> MCLK,
+		CE 			=> CE,
 		SYSCLK_CE	=> INT_SYSCLKF_CE,
 		RST_N			=> RST_N and not SPC_MODE,
 		ENABLE		=> ENABLE,
@@ -295,6 +298,7 @@ begin
 	port map(
 		RST_N			=> RST_N and not SPC_MODE,
 		CLK			=> MCLK,
+		CE			=> CE,
 		SYSCLK_CE	=> INT_SYSCLKF_CE,
 		ENABLE		=> ENABLE,
 		
@@ -344,6 +348,7 @@ begin
 	SMP : entity work.SMP
 	port map(
 		CLK			=> DSPCLK,
+		CORE_CE		=> CE,
 		RST_N			=> RST_N,
 		CE				=> SMP_CE,
 		ENABLE		=> SMP_EN,
@@ -371,6 +376,7 @@ begin
 	DSP: entity work.DSP 
 	port map (
 		CLK			=> DSPCLK,
+		CORE_CE		=> CE,
 		RST_N			=> RST_N,
 		ENABLE		=> ENABLE,
 		PAL			=> PAL,

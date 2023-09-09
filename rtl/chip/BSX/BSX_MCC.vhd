@@ -7,6 +7,7 @@ library work;
 entity MCC is
 	port(
 		CLK			: in std_logic;
+		CE 			: in std_logic;
 		RST_N			: in std_logic;
 		ENABLE		: in std_logic;
 		
@@ -64,7 +65,7 @@ begin
 			EXT_MAP <= '1';
 			EN_DPAK_WR <= '0';
 			EN_EXT_WR <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' then
 				if IO_SEL = '1' and WR_N = '0' and SYSCLKF_CE = '1' then
 					case CA(19 downto 16) is
@@ -102,7 +103,7 @@ begin
 	begin
 		if RST_N = '0' then
 			DO7 <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if IO_SEL = '1' then 
 				case CA(19 downto 16) is
 					when x"0" => DO7 <= '0';

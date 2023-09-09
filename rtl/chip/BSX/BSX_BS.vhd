@@ -7,6 +7,7 @@ library work;
 entity BS is
 	port(
 		CLK			: in std_logic;
+		CE			: in std_logic;
 		RST_N			: in std_logic;
 		ENABLE		: in std_logic;
 		
@@ -124,7 +125,7 @@ begin
 			R1A <= x"10";
 			STREAM1_STATUS_UPDATE <= '0';
 			STREAM2_STATUS_UPDATE <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' then
 				if WR_N = '0' and SYSCLKF_CE = '1' then
 					case A is
@@ -261,7 +262,7 @@ begin
 	begin
 		if RST_N = '0' then
 			DO <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK)  and CE = '1' then
 			if RD_N = '0' then 
 				case A is
 					when x"88" => 
@@ -371,7 +372,7 @@ begin
 	
 	process( CLK)
 	begin
-		if rising_edge(CLK) then
+		if rising_edge(CLK)  and CE = '1' then
 			SEC_TICK <= '0';
 			
 			SEC_DIV <= SEC_DIV + 1;
@@ -384,7 +385,7 @@ begin
 	
 	process( CLK)
 	begin
-		if rising_edge(CLK) then
+		if rising_edge(CLK)  and CE = '1' then
 			if SEC_TICK = '1' then
 				SEC <= std_logic_vector( unsigned(SEC) + 1 );	--sec inc
 				if SEC = x"3B" then

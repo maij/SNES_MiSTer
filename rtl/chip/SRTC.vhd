@@ -6,6 +6,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity SRTC is
 	port(
 		CLK			: in std_logic;
+		CE			: in std_logic;
 
 		A0   			: in std_logic;
 		DI				: in std_logic_vector(7 downto 0);
@@ -53,7 +54,7 @@ begin
 
 	process( CLK)
 	begin
-		if rising_edge(CLK) then
+		if rising_edge(CLK) and CE = '1' then
 			SEC_TICK <= '0';
 			
 			SEC_DIV <= SEC_DIV + 1;
@@ -68,7 +69,7 @@ begin
 	variable DAY_OF_MONTH_L : std_logic_vector(3 downto 0);
 	variable DAY_OF_MONTH_H : std_logic_vector(3 downto 0);
 	begin
-		if rising_edge(CLK) then
+		if rising_edge(CLK) and CE = '1' then
 			DAY_OF_MONTH_H := DAYS_TBL(to_integer(unsigned(REGS(8))))(7 downto 4);
 			DAY_OF_MONTH_L := DAYS_TBL(to_integer(unsigned(REGS(8))))(3 downto 0);
 			

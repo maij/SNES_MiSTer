@@ -10,6 +10,7 @@ set_global_assignment -name VHDL_FILE rtl/CPU.vhd
 set_global_assignment -name VHDL_FILE rtl/DSP_PKG.vhd
 set_global_assignment -name VHDL_FILE rtl/DSP.vhd
 set_global_assignment -name VHDL_FILE rtl/SNES.vhd
+set_global_assignment -name VHDL_FILE rtl/core_control.vhd
 set_global_assignment -name VERILOG_FILE rtl/main.v
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/cheatcodes.sv
 set_global_assignment -name VHDL_FILE rtl/bram.vhd

@@ -9,6 +9,7 @@ use IEEE.STD_LOGIC_TEXTIO.all;
 entity GSUMap is
 	port(
 		MCLK			: in std_logic;
+		CE				: in std_logic;
 		RST_N			: in std_logic;
 		ENABLE		: in std_logic := '1';
 		
@@ -69,6 +70,7 @@ begin
 	GSU : entity work.GSU
 	port map(
 		CLK			=> MCLK,
+		CE			=> CE,
 		RST_N			=> RST_N and MAP_SEL,
 		ENABLE		=> ENABLE,
 

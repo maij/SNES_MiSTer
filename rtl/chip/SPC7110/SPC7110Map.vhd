@@ -9,6 +9,7 @@ use IEEE.STD_LOGIC_TEXTIO.all;
 entity SPC7110Map is
 	port(
 		MCLK			: in std_logic;
+		CE				: in std_logic;
 		RST_N			: in std_logic;
 		ENABLE		: in std_logic := '1';
 
@@ -88,6 +89,7 @@ begin
 	port map(
 		RST_N				=> RST_N and MAP_SEL,
 		CLK				=> MCLK,
+		CE				=> CE,
 		ENABLE			=> ENABLE,
 
 		CA					=> CA,
@@ -118,6 +120,7 @@ begin
 	RTC : entity work.RTC4513
 	port map(
 		CLK			=> MCLK,
+		CORE_CE		=> CE,
 		ENABLE		=> ENABLE,
 
 		DO				=> RTC_DO,
@@ -136,7 +139,7 @@ begin
 			SPC7110_DROM_ACTIVE <= '0';
 			SPC7110_DROM_RDY <= '0';
 			ROM_RD_LATE <= '0';
-		elsif rising_edge(MCLK) then
+		elsif rising_edge(MCLK) and CE = '1' then
 			if SYSCLKF_CE = '1' then
 				SPC7110_DROM_ACTIVE <= not SPC7110_DROM_OE_N;
 				SNES_ROM_ACTIVE <= '0';
@@ -158,7 +161,7 @@ begin
 	begin
 		if RST_N = '0' then
 			ROM_RD <= '0';
-		elsif rising_edge(MCLK) then
+		elsif rising_edge(MCLK) and CE = '1' then
 			ROM_RD <= '0';
 			if SYSCLKR_CE = '1' or SYSCLKF_CE = '1' then
 				ROM_RD <= '1';

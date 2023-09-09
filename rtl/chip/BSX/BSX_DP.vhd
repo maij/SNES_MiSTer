@@ -7,6 +7,7 @@ library work;
 entity DATAPAK is
 	port(
 		CLK			: in std_logic;
+		CE			: in std_logic;
 		RST_N			: in std_logic;
 		ENABLE		: in std_logic;
 		
@@ -64,7 +65,7 @@ begin
 			WRITE_PEND <= '0';
 			PAGE_ERASE_PEND <= '0';
 			CHIP_ERASE_PEND <= '0';
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ENABLE = '1' then
 				if CE_N = '0' and WR_N = '0' and SYSCLKF_CE = '1' then 
 					if BYTE_WRITE = '1' then		--Data write
@@ -162,7 +163,7 @@ begin
 	begin
 		if RST_N = '0' then
 			DO <= (others => '0');
-		elsif rising_edge(CLK) then
+		elsif rising_edge(CLK) and CE = '1' then
 			if ESR = '1' and A(15 downto 0) = x"0002" then 
 				DO <= x"C0";
 			elsif ESR = '1' and A(15 downto 0) = x"0004" then 
