@@ -44,7 +44,9 @@ module sdram
 	input             word,
 	input      [15:0] din,
 	output     [15:0] dout,
-	output reg        busy
+	output reg        busy,
+
+	input 		 		refresh     // force refresh when core is paused
 );
 
 assign SDRAM_nCS = 0;
@@ -82,6 +84,10 @@ always @(posedge clk) begin
 
 	old_rd <= old_rd & rd;
 	old_wr <= old_wr & wr;
+
+	if(refresh && state == STATE_IDLE)
+		state <= STATE_START; // forced refresh from core control
+
 
 	if(state == STATE_IDLE && mode == MODE_NORMAL) begin
 		if((~old_rd & rd) | (~old_wr & wr)) begin

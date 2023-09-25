@@ -548,6 +548,7 @@ end
 wire ce;
 wire sdram_busy = !ROM_WE_N | (RESET_N ? !ROM_OE_N : RFSH);
 reg pause;
+wire refresh;
 always_ff @(posedge clk_sys) begin
 	// Block pause when sdram busy, downloading rom or resetting
    pause <= !sdram_busy && (status[47] && OSD_STATUS && !ioctl_download && !reset); 
@@ -555,9 +556,11 @@ end
 
 core_control core_control
 (
+	.clk_mem     (clk_mem),
 	.clk_sys     (clk_sys),
 	.pause       (pause),
 	.ce          (ce),
+	.refresh	(refresh),
 );
 
 ////////////////////////////  SYSTEM  ///////////////////////////////////
@@ -790,7 +793,8 @@ sdram sdram
 	.rd(~cart_download & (RESET_N ? ~ROM_OE_N : RFSH)),
 	.wr(cart_download ? ioctl_wr : ~ROM_WE_N),
 	.word(cart_download | ROM_WORD),
-	.busy()
+	.busy(),
+	.refresh(refresh)
 );
 
 wire[16:0] WRAM_ADDR;
