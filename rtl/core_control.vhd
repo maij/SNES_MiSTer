@@ -63,13 +63,14 @@ begin
 
    process(clk_mem)
    begin 
-      if falling_edge(clk_mem) then
-         refresh <= '0';
+      if rising_edge(clk_mem) then
          refresh_buf(1) <= refresh_buf(0);
+         refresh_buf(0) <= '0';
          if (send_refresh = '1') then
             refresh_buf(0) <= '1';
          end if;
 
+         refresh <= '0';
          if refresh_buf(1) = '1' then
             refresh <= '1';
          end if;
